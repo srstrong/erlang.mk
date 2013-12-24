@@ -104,6 +104,8 @@ ERLC_OPTS ?= -Werror +debug_info +warn_export_all +warn_export_vars \
 COMPILE_FIRST ?=
 COMPILE_FIRST_PATHS = $(addprefix src/,$(addsuffix .erl,$(COMPILE_FIRST)))
 
+%.erl: $(shell find . -type f -name \*.hrl); @touch $@
+
 all: deps app
 
 clean-all: clean clean-deps clean-docs
@@ -139,7 +141,7 @@ define compile_dtl
 endef
 
 ebin/$(PROJECT).app: $(shell find src -type f -name \*.erl) \
-		$(shell find src -type f -name \*.core) \
+		$(shell find src -type 	f -name \*.core) \
 		$(shell find src -type f -name \*.xrl) \
 		$(shell find src -type f -name \*.yrl) \
 		$(shell find templates -type f -name \*.dtl 2>/dev/null)

@@ -248,6 +248,15 @@ tests: clean deps app build-tests
 	fi
 	$(gen_verbose) rm -f test/*.beam
 
+tests_noclean: ERLC_OPTS += -DTEST=1 +'{parse_transform, eunit_autoexport}'
+tests_noclean: deps app build-tests
+	@if [ -d "test" ] ; \
+	then \
+		mkdir -p logs/ ; \
+		$(CT_RUN) -suite $(addsuffix _SUITE,$(CT_SUITES)) ; \
+	fi
+	$(gen_verbose) rm -f test/*.beam
+
 # Dialyzer.
 
 PLT_APPS ?=

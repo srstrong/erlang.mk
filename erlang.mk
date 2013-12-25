@@ -154,7 +154,7 @@ ebin/$(PROJECT).app: $(shell find src -type f -name \*.erl) \
 		$(call compile_dtl,$(filter %.dtl,$?)))
 
 clean:
-	$(gen_verbose) rm -rf ebin/ test/*.beam erl_crash.dump
+	$(gen_verbose) rm -rf ebin/* test/*.beam erl_crash.dump
 
 # Dependencies.
 
@@ -181,7 +181,7 @@ $(foreach dep,$(DEPS),$(eval $(call dep_target,$(dep))))
 deps: $(ALL_DEPS_DIRS)
 	@for dep in $(ALL_DEPS_DIRS) ; do \
 		if [ -f $$dep/Makefile ] ; then \
-			$(MAKE) -C $$dep ; \
+			$(MAKE) -C $$dep || exit 1 ; \
 		else \
 			echo "include $(CURDIR)/erlang.mk" | $(MAKE) -f - -C $$dep ; \
 		fi ; \
@@ -242,16 +242,7 @@ endef
 $(foreach test,$(CT_SUITES),$(eval $(call test_target,$(test))))
 
 tests: ERLC_OPTS += -DTEST=1 +'{parse_transform, eunit_autoexport}'
-tests: clean deps app build-tests
-	@if [ -d "test" ] ; \
-	then \
-		mkdir -p logs/ ; \
-		$(CT_RUN) -suite $(addsuffix _SUITE,$(CT_SUITES)) ; \
-	fi
-	$(gen_verbose) rm -f test/*.beam
-
-tests_noclean: ERLC_OPTS += -DTEST=1 +'{parse_transform, eunit_autoexport}'
-tests_noclean: deps app build-tests
+tests: deps app build-tests
 	@if [ -d "test" ] ; \
 	then \
 		mkdir -p logs/ ; \
